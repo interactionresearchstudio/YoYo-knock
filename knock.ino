@@ -4,7 +4,7 @@ byte getKnockSequence() {
 
 #define SOLENOID 13
 #define TAPE_SIZE 200
-byte knockArray[TAPE_SIZE / 8];
+byte knockArray[TAPE_SIZE / 8] = {101,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int tapeHeadPos = 0;
 
 #define TAPE_SIZE_BYTES TAPE_SIZE/8

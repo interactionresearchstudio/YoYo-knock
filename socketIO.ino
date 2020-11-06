@@ -22,7 +22,7 @@ void socketIO_event(const char * payload, size_t length) {
 
 void socketIO_msg(const char * payload, size_t length) {
   Serial.println("got msg");
-  const size_t capacity = 2 * JSON_OBJECT_SIZE(2) + 60;
+  const size_t capacity = JSON_ARRAY_SIZE(25) + 2*JSON_OBJECT_SIZE(2) + 60;
   DynamicJsonDocument incomingDoc(capacity);
   deserializeJson(incomingDoc, payload);
   const char* recMacAddress = incomingDoc["macAddress"];
@@ -36,15 +36,15 @@ void socketIO_msg(const char * payload, size_t length) {
   if (String(data_project) == "test") {
     blinkDevice();
   } else if (String(data_project) == "knockknock") {
-   // byte servo_angle = incomingDoc["data"]["knock"];
-  // Serial.println(incomingDoc["data"]["knock"]);
-  //setKnockSequence(incomingDoc["data"]["knock"]);
+    for (int i = 0; i < TAPE_SIZE / 8; i++) {
+      knockArray[i] = incomingDoc["data"]["knock"][i];
+    }
   }
 }
 
 void socketIO_sendButtonPress() {
   Serial.println("button send");
-  const size_t capacity = 2 * JSON_OBJECT_SIZE(2);
+  const size_t capacity = JSON_ARRAY_SIZE(25) + 2*JSON_OBJECT_SIZE(2) + 60;
   DynamicJsonDocument doc(capacity);
   doc["macAddress"] = getRemoteMacAddress(1);
   JsonObject data = doc.createNestedObject("data");
@@ -56,12 +56,14 @@ void socketIO_sendButtonPress() {
 
 void socketIO_sendKnocks() {
   Serial.println("Knock Sequence send");
-  const size_t capacity = 3 * JSON_OBJECT_SIZE(2);
+  const size_t capacity = JSON_ARRAY_SIZE(25) + 2*JSON_OBJECT_SIZE(2) + 60;
   DynamicJsonDocument doc(capacity);
   doc["macAddress"] = getRemoteMacAddress(1);
   JsonObject data = doc.createNestedObject("data");
   data["project"] = "knockknock";
-  data["knock"].add(*knockArray);
+  for (int i = 0; i < TAPE_SIZE / 8; i ++) {
+    data["knock"].add(knockArray[i]);
+  }
   String sender;
   serializeJson(doc, sender);
   socketIO.emit("msg", sender.c_str());
