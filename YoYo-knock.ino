@@ -143,6 +143,26 @@ char host[] = "irs-socket-server-staging.herokuapp.com"; // Socket.IO Staging Se
 int port = 80; // Socket.IO Port Address
 char path[] = "/socket.io/?transport=websocket"; // Socket.IO Base Path
 
+//Knock settings
+
+#define SOLENOID 13
+#define NOPIEZO
+#define PIEZO_TEST_BUTTON 32
+#define PIEZO 4
+#define TAPE_SIZE 200
+#define TAPE_SIZE_BYTES TAPE_SIZE/8
+byte knockArray[TAPE_SIZE / 8];
+int tapeHeadPos = 0;
+int updateIntervalMs = 20;
+unsigned long updateAtMs = 0;
+
+typedef enum {
+  RECORD,
+  PLAY,
+  INACTIVE
+} State;
+State currentState = INACTIVE;
+
 void setup() {
   Serial.begin(115200);
   setupPins();

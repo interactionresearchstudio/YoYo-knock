@@ -1,33 +1,5 @@
-byte getKnockSequence() {
-
-}
-
-#define SOLENOID 13
-#define TAPE_SIZE 200
-byte knockArray[TAPE_SIZE / 8] = {101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int tapeHeadPos = 0;
-
-#define TAPE_SIZE_BYTES TAPE_SIZE/8
-
-int updateIntervalMs = 20;
-unsigned long updateAtMs = 0;
-#define NOPIEZO
-#define PIEZO_TEST_BUTTON 32
-#define PIEZO 4
-typedef enum {
-  RECORD,
-  PLAY,
-  INACTIVE
-} State;
-
-State currentState = INACTIVE;
-void playKnock(){
-  for(int i = 0; i < TAPE_SIZE;i++){
-    playBytes(i);
-    delay(updateIntervalMs);
-  }
-  digitalWrite(SOLENOID,0);
-  
+void playKnock() {
+  currentState = PLAY;
 }
 void knockCheck() {
   if (millis() - updateAtMs > updateIntervalMs ) {
@@ -66,6 +38,13 @@ void knockCheck() {
         }
         break;
       case PLAY:
+        playBytes(tapeHeadPos);
+        tapeHeadPos++;
+        if (tapeHeadPos == TAPE_SIZE) {
+          currentState = INACTIVE;
+          tapeHeadPos = 0;
+          digitalWrite(SOLENOID, 0);
+        }
         break;
       case INACTIVE:
         break;
