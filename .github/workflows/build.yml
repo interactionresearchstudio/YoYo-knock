@@ -9,7 +9,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          path: ESP32-SOCKETIO
+          path: YoYo-knock
 
       - name: Setup Arduino CLI
         uses: arduino/setup-arduino-cli@v1.0.0
