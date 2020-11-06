@@ -39,6 +39,7 @@ void socketIO_msg(const char * payload, size_t length) {
     for (int i = 0; i < TAPE_SIZE / 8; i++) {
       knockArray[i] = incomingDoc["data"]["knock"][i];
     }
+    playKnock();
   }
 }
 

@@ -7,8 +7,9 @@ void setupPins() {
   pinMode(FADE_3, INPUT_PULLUP);
   pinMode(FADE_1, INPUT_PULLUP);
 
-  pinMode(SOLENOID,OUTPUT);
+  pinMode(SOLENOID, OUTPUT);
 
+pinMode(PIEZO_TEST_BUTTON,INPUT_PULLUP);
 
   ButtonConfig* buttonConfigBuiltIn = buttonBuiltIn.getButtonConfig();
   buttonConfigBuiltIn->setEventHandler(handleButtonEvent);
@@ -64,8 +65,7 @@ void handleButtonEvent(AceButton* button, uint8_t eventType, uint8_t buttonState
         case AceButton::kEventPressed:
           break;
         case AceButton::kEventReleased:
-          //if (currentSetupStatus == setup_finished) socketIO_sendButtonPress();
-          if (currentSetupStatus == setup_finished) socketIO_sendKnocks();
+          if (currentSetupStatus == setup_finished) socketIO_sendButtonPress();
           break;
         case AceButton::kEventLongPressed:
 #ifdef DEV

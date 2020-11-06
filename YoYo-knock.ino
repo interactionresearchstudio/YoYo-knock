@@ -233,6 +233,7 @@ void loop() {
       socketIO.loop();
       ledHandler();
       wifiCheck();
+      knockCheck();
       break;
   }
   buttonBuiltIn.check();
