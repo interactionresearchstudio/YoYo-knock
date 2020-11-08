@@ -148,7 +148,7 @@ char path[] = "/socket.io/?transport=websocket"; // Socket.IO Base Path
 #define SOLENOID 13
 #define NOPIEZO
 #define PIEZO_TEST_BUTTON 32
-#define PIEZO 4
+#define PIEZO 34
 #define TAPE_SIZE 200
 #define TAPE_SIZE_BYTES TAPE_SIZE/8
 byte knockArray[TAPE_SIZE / 8];
