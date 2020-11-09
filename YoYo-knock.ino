@@ -146,7 +146,7 @@ char path[] = "/socket.io/?transport=websocket"; // Socket.IO Base Path
 //Knock settings
 
 #define SOLENOID 13
-#define NOPIEZO
+//#define NOPIEZO
 #define PIEZO_TEST_BUTTON 32
 #define PIEZO 34
 #define TAPE_SIZE 200
