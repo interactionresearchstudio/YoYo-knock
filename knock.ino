@@ -8,7 +8,7 @@ void knockCheck() {
     //make input binary
 #ifndef NOPIEZO
     int inputValue = analogRead(PIEZO);
-    if (inputValue > 200) {
+    if (inputValue > knockThreshold) {
       inputValue = 1;
     } else {
       inputValue = 0;

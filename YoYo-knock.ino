@@ -1,8 +1,8 @@
 //#define DEV
 //#define STAGING
 
-#define FADE_3 22
-#define FADE_1 21
+#define THRESH_3 25
+#define THRESH_1 26
 
 #define EXTERNAL_BUTTON 23
 #define CAPTOUCH T0
@@ -155,6 +155,7 @@ byte knockArray[TAPE_SIZE / 8];
 int tapeHeadPos = 0;
 int updateIntervalMs = 20;
 unsigned long updateAtMs = 0;
+int knockThreshold = 200;
 
 typedef enum {
   RECORD,
@@ -167,6 +168,7 @@ void setup() {
   Serial.begin(115200);
   setupPins();
   setupCapacitiveTouch();
+  knockThreshold = checkThreshold();
 
   //create 10 digit ID
   myID = generateID();

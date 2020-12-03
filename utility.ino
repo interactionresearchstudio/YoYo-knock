@@ -4,8 +4,8 @@ void setupPins() {
   pinMode(BUTTON_BUILTIN, INPUT);
   pinMode(EXTERNAL_BUTTON, INPUT_PULLUP);
 
-  pinMode(FADE_3, INPUT_PULLUP);
-  pinMode(FADE_1, INPUT_PULLUP);
+  pinMode(THRESH_3, INPUT_PULLUP);
+  pinMode(THRESH_1, INPUT_PULLUP);
 
   pinMode(SOLENOID, OUTPUT);
 
@@ -162,4 +162,20 @@ void setupCapacitiveTouch() {
   Serial.print("Touch threshold is:");
   Serial.println(TOUCH_THRESHOLD);
   touchConfig.setThreshold(TOUCH_THRESHOLD);
+}
+
+long checkThreshold() {
+  if (digitalRead(THRESH_3) == 0 && digitalRead(THRESH_1) == 1) {
+    Serial.println("High Threshold of Piezo");
+    return 500;
+  } else if (digitalRead(THRESH_1) == 0 && digitalRead(THRESH_3) == 1) {
+    Serial.println("Mid Threshold of Piezo");
+    return 300;
+  } else if (digitalRead(THRESH_3) == 0 && digitalRead(THRESH_1) == 0) {
+    Serial.println("Low Threshold of Piezo");
+    return 100;
+  } else {
+    Serial.println("Default Threshold of Piezo");
+    return 200;
+  }
 }
