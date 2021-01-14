@@ -36,7 +36,7 @@ int currentSetupStatus = setup_pending;
 #define PROJECT_SLUG "ESP32-SOCKETIO"
 #define VERSION "v0.2"
 #define ESP32set
-#define WIFICONNECTTIMEOUT 120000
+#define WIFICONNECTTIMEOUT 240000
 #define SSID_MAX_LENGTH 31
 
 #include <AsyncTCP.h>
@@ -116,6 +116,7 @@ class CapacitiveConfig: public ButtonConfig {
 int TOUCH_THRESHOLD = 60;
 int TOUCH_HYSTERESIS = 20;
 #define LONG_TOUCH 1500
+#define LONG_PRESS 10000
 CapacitiveConfig touchConfig(CAPTOUCH, TOUCH_THRESHOLD);
 AceButton buttonTouch(&touchConfig);
 bool isSelectingColour = false;
@@ -203,6 +204,8 @@ void setup() {
     Serial.println(macCredentials);
     //connect to router to talk to server
     digitalWrite(LED_BUILTIN, 0);
+    Serial.print("Last connected Wifi SSID: ");
+    Serial.println(getLastConnected());
     connectToWifi(wifiCredentials);
     //checkForUpdate();
     setupSocketIOEvents();
@@ -252,14 +255,18 @@ void loop() {
       dnsServer.processNextRequest();
       break;
     case setup_finished:
-      socketIO.loop();
+      if (!disconnected) {
+        socketIO.loop();
+        knockCheck();
+      }
       ledHandler();
       wifiCheck();
-      knockCheck();
       break;
   }
   buttonBuiltIn.check();
-  buttonExternal.check();
-  buttonTouch.check();
+  if (!disconnected) {
+    buttonExternal.check();
+    buttonTouch.check();
+  }
   checkReset();
 }

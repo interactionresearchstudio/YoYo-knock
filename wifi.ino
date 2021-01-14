@@ -118,17 +118,36 @@ void connectToWifi(String credentials) {
     if (currentStatus == WL_CONNECTED) {
       // Connected!
       connectSuccess = true;
+      Serial.println("Setting last connected");
+      Serial.println(WiFi.SSID());
+      setLastConnected(WiFi.SSID());
       break;
     }
 
     if (millis() - wifiMillis > WIFICONNECTTIMEOUT) {
-      // Timeout, check if we're out of range.
-      // Wipe credentials and reset
-      Serial.println("Wifi connect failed, Please try your details again in the captive portal");
-      preferences.begin("scads", false);
-      preferences.putString("wifi", "");
-      preferences.end();
-      ESP.restart();
+      //Wifi credentials are potentially incorrect as not connected to a network before.
+      if (getLastConnected() == "") {
+        // Timeout, check if we're out of range.
+        // Wipe credentials and reset
+        Serial.println("Wifi connect failed, Please try your details again in the captive portal");
+        preferences.begin("scads", false);
+        preferences.putString("wifi", "");
+        preferences.end();
+        ESP.restart();
+      } else if (lastConnectedInNetworkList()) {
+        //Last connected network in the wifi scan, so is potentially network interference or dropped signal
+        Serial.println("Retrying network connect as last connected network is visible. Please try and move closer to your router");
+        wifiMillis = millis();
+        digitalWrite(LED_BUILTIN, 1);
+        ESP.restart();
+      } else {
+        //Last connected network not in the wifiScan, so most likely in a new location
+        Serial.println("Removing wifi credentials as the last connected network is not visible");
+        preferences.begin("scads", false);
+        preferences.putString("wifi", "");
+        preferences.end();
+        ESP.restart();
+      }
     }
 
     delay(100);
@@ -184,9 +203,12 @@ String checkSsidForSpelling(String incomingSSID) {
 void wifiCheck() {
   if (millis() - wificheckMillis > wifiCheckTime) {
     wificheckMillis = millis();
-    if (wifiMulti.run() !=  WL_CONNECTED) {
+    uint8_t currentStatusCheck = wifiMulti.run();
+    if (currentStatusCheck !=  WL_CONNECTED) {
       digitalWrite(LED_BUILTIN, 1);
       disconnected = true;
+    } else {
+      disconnected = false;
     }
   }
 }
@@ -228,5 +250,24 @@ bool isWifiValid(String incomingSSID) {
       return false;
     }
   }
+}
 
+
+bool lastConnectedInNetworkList() {
+  int n = WiFi.scanNetworks();
+  if (n == 0) {
+    Serial.println("no networks found");
+    Serial.println("can't find any wifi in the area");
+    return false;
+  } else {
+    Serial.print(n);
+    Serial.println(" networks found");
+    for (int i = 0; i < n; ++i) {
+      Serial.println(WiFi.SSID(i));
+      if (getLastConnected() == WiFi.SSID(i)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
