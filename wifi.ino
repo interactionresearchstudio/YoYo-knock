@@ -62,7 +62,7 @@ void createSCADSAP() {
 }
 
 void connectToWifi(String credentials) {
-
+  WiFi.persistent(false);
   String _wifiCredentials = credentials;
   const size_t capacity = 2 * JSON_ARRAY_SIZE(6) + JSON_OBJECT_SIZE(2) + 150;
   DynamicJsonDocument doc(capacity);
@@ -71,9 +71,7 @@ void connectToWifi(String credentials) {
   JsonArray pass = doc["password"];
   if (ssid.size() > 0) {
     for (int i = 0; i < ssid.size(); i++) {
-      if (isWifiValid(ssid[i])) {
-        wifiMulti.addAP(checkSsidForSpelling(ssid[i]).c_str(), pass[i]);
-      }
+      wifiMulti.addAP(checkSsidForSpelling(ssid[i]).c_str(), pass[i]);
     }
   } else {
     Serial.println("issue with wifi credentials, creating access point");
@@ -137,22 +135,26 @@ void connectToWifi(String credentials) {
       } else if (lastConnectedInNetworkList()) {
         //Last connected network in the wifi scan, so is potentially network interference or dropped signal
         Serial.println("Retrying network connect as last connected network is visible. Please try and move closer to your router");
-        wifiMillis = millis();
-        digitalWrite(LED_BUILTIN, 1);
         ESP.restart();
       } else {
         //Last connected network not in the wifiScan, so most likely in a new location
-        Serial.println("Removing wifi credentials as the last connected network is not visible");
-        preferences.begin("scads", false);
-        preferences.putString("wifi", "");
-        preferences.end();
-        ESP.restart();
+        if (currentStatus == WL_DISCONNECTED) {
+          Serial.println("Removing wifi credentials as the last connected network is not visible");
+          preferences.begin("scads", false);
+          preferences.putString("wifi", "");
+          preferences.end();
+          ESP.restart();
+        } else {
+          Serial.println("Seem to be having WiFi connection issues, Please try and move closer to you router");
+          ESP.restart();
+        }
       }
     }
 
     delay(100);
     yield();
     Serial.print(".");
+    buttonBuiltIn.check();
   }
   Serial.println("");
   Serial.println("WiFi connected");
