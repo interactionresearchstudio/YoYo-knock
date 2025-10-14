@@ -60,15 +60,23 @@ jobs:
           mv AsyncTCP /home/runner/Arduino/libraries/AsyncTCP
           mv SocketIoClient /home/runner/Arduino/libraries/SocketIoClient
 
-      - name: Compile
+      - name: Compile (default partition, bigger SPIFFS)
         run: |
-          mkdir build
-          echo "Compiling ${{github.repository}}..."
-          arduino-cli compile -v -b esp32:esp32:esp32 --build-properties build.partitions=minimal,upload.maximum_size=1966080 --output-dir build YoYo-knock
-
-      - name: Create spiffs binary
+          arduino-cli compile \
+            -b esp32:esp32:esp32:PartitionScheme=default \
+            YoYoMachines-LightTouch-ESPNow
+      
+      # Update mkspiffs size to match the 'default' scheme (~1.6 MB)
+      - name: Build SPIFFS image
         run: |
-          /home/runner/.arduino15/packages/esp32/tools/mkspiffs/0.2.3/mkspiffs -c YoYo-knock/data -b 4096 -p 256 -s 0xB0000 build/spiffs.bin
+          SIZE_HEX='0x190000'         # default scheme SPIFFS size
+          SIZE_DEC=$((SIZE_HEX))
+          echo "SPIFFS size (hex): $SIZE_HEX ; (dec): $SIZE_DEC"
+          /home/runner/.arduino15/packages/esp32/tools/mkspiffs/0.2.3/mkspiffs \
+            -c YoYoMachines-LightTouch-ESPNow/data \
+            -b 4096 -p 256 \
+            -s $SIZE_DEC \
+            build/spiffs.bin
 
       - name: Checkout esp_binary_merger
         uses: actions/checkout@v2
